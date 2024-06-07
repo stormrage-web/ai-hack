@@ -19,5 +19,4 @@ const UserProvider: FC<Props> = ({ children }) => {
         </UserContext.Provider>
     );
 };
-
 export default UserProvider;

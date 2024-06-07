@@ -7,7 +7,6 @@ interface UserContext {
     setLoading: (val: boolean) => void;
 }
 
-// Создаём контекст и задаем значения по умолчанию для него
 export default createContext<UserContext>({
     token: '',
     setToken: () => {},
