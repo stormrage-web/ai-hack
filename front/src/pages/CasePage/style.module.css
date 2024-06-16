@@ -102,6 +102,10 @@ textarea.text {
 
 @media (max-width: 1300px) {
   .container {
-    padding: 80px 80px;
+    padding: 40px 80px;
+  }
+
+  .link {
+    top: 10px;
   }
 }
