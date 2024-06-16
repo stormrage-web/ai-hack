@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  width: 100%;
+  padding: 80px 160px;
+  background-color: #f4f6fa;
+}
+
+.loginForm {
+  width: 400px;
+}
+
+.loginFormForgot {
+  float: right;
+}
+
+.loginFormButton {
+  width: 100%;
+}
+
+.loading {
+  color: #1a1a1a;
+}
