@@ -33,15 +33,27 @@ const options = [
     },
     {
         id: 2,
-        height: 1024,
-        width: 2048,
+        height: 900,
+        width: 1600,
         name: "Web"
     },
     {
         id: 3,
         height: 200,
-        width: 300,
+        width: 500,
         name: "Mobile"
+    },
+    {
+        id: 3,
+        height: 400,
+        width: 1000,
+        name: "Mobile 2"
+    },
+    {
+        id: 3,
+        height: 300,
+        width: 900,
+        name: "Mobile 3"
     },
 ];
 
@@ -85,9 +97,10 @@ const CasePage = () => {
     }, [currentCase]);
 
     useEffect(() => {
+        console.log(selectedIndex);
         if (currentCase) {
-            setSubtitle(currentCase.images[selectedIndex]?.subtitle);
-            setTitle(currentCase.images[selectedIndex]?.title);
+            form.setFieldValue('subtitle', currentCase.images[selectedIndex]?.subtitle);
+            form.setFieldValue('title', currentCase.images[selectedIndex]?.title);
         }
     }, [selectedIndex]);
 
@@ -132,8 +145,8 @@ const CasePage = () => {
             title,
             subtitle
         }).then((response) => {
-            setCases(cases.filter((item => item.id !== response.data.id)));
-            setCases([...cases, response.data]);
+            setCases(cases.map(it => it.id === response.data.id ? {...response.data, images: response.data.images} : it));
+            setSelectedIndex(currentCase ? currentCase.images.length - 1 : 0);
         }).catch(() => {
             notification.error({message: 'Произошла ошибка на стороне сервера'})
         }).finally(() => setLoading(false));
@@ -154,15 +167,27 @@ const CasePage = () => {
         form.setFieldValue('salaryTo', val < form.getFieldValue("salaryFrom") ? form.getFieldValue("salaryFrom") : val);
     };
 
-    const handleGenText = () => {
+    // const handleGenText = () => {
+    //     setLoading(true);
+    //     instance.get("generate_text?case_id=" + currentCase?.id).then((response) => {
+    //         form.setFieldValue("title", response.data.title);
+    //         form.setFieldValue("subtitle", response.data.subtitle);
+    //     }).catch(() => {
+    //         notification.error({message: 'Произошла ошибка на стороне сервера'})
+    //     }).finally(() => setLoading(false));
+    // };
+
+    const handleRegenerate = () => {
         setLoading(true);
-        instance.get("generate_text?case_id=" + currentCase?.id).then((response) => {
-            form.setFieldValue("title", response.data.title);
-            form.setFieldValue("subtitle", response.data.subtitle);
+        instance.post("regenerate", {
+            case_id: currentCase?.id,
+        }).then((response) => {
+            setCases(cases.map(it => it.id === response.data.id ? {...response.data, images: response.data.images} : it));
+            setSelectedIndex(currentCase ? currentCase.images.length - 1 : 0);
         }).catch(() => {
             notification.error({message: 'Произошла ошибка на стороне сервера'})
         }).finally(() => setLoading(false));
-    }
+    };
 
     const handleClearText = () => {
         setLoading(true);
@@ -172,19 +197,21 @@ const CasePage = () => {
             title: "",
             subtitle: "",
         }).then((response) => {
-            setCases(cases.filter((item => item.id !== response.data.id)));
-            setCases([...cases, response.data]);
+            setCases(cases.map(it => it.id === response.data.id ? {...response.data, images: response.data.images} : it));
+            setSelectedIndex(currentCase ? currentCase.images.length - 1 : 0);
         }).catch(() => {
             notification.error({message: 'Произошла ошибка на стороне сервера'})
         }).finally(() => setLoading(false));
-    }
+    };
 
     const next = () => setStep(step + 1);
     const round = (x: number, y: number) => (x / y === Math.round(x / y)) ? x / y : (x / y).toFixed(1);
 
     return loading ? (
-        <div className={styles.container}>
+        <div className={styles.loading}>
             <Spin/>
+            <span>Пожалуйста, подождите.</span>
+            <span>Обычно генерация занимает не больше 20 секунд.</span>
         </div>
     ) : (
         <div className={styles.container}>
@@ -237,7 +264,7 @@ const CasePage = () => {
                                         disabled={!!currentCase?.id}
                                     />
                                 </Form.Item>
-                                <Form.Item label="Сумма зарплатных поступлений за 12 месяцев (тыс. р.)">
+                                <Form.Item name="salaryFrom" label="Сумма зарплатных поступлений за 12 месяцев (тыс. р.)" rules={[{required: true, message: 'Пожалуйста, введите сумму поступлений'}]}>
                                     <Flex justify='space-between'>
                                         <Form.Item name="salaryFrom" style={{margin: 0}}>
                                             <InputNumber min={1} max={500000} onChange={handleChangeSalaryFrom} placeholder="От" style={{width: '95%'}} disabled={!!currentCase?.id}/>
@@ -263,7 +290,7 @@ const CasePage = () => {
                                 }))}/>
                             </Form.Item>
                             <Form.Item className={styles.generateWrapper}>
-                                <Button type="primary" htmlType="submit" className={styles.generate}>Сгенерировать
+                                <Button type="primary" htmlType="submit" className={styles.generate} disabled={!!currentCase?.id}>Сгенерировать
                                     картинку</Button>
                             </Form.Item>
                         </>
@@ -281,11 +308,11 @@ const CasePage = () => {
                                 <Button type="primary" htmlType="submit" size="large" onClick={next}>Применить</Button>
                                 <Button type="dashed" danger size="large" onClick={handleClearText}>Сбросить текст</Button>
                             </Flex>
-                            <Form.Item>
-                                <Button type="primary" size="large" onClick={handleGenText}
-                                        className={styles.altButton}>Сгенерировать
-                                    текст автоматически</Button>
-                            </Form.Item>
+                            {/*<Form.Item>*/}
+                            {/*    <Button type="primary" size="large" onClick={handleGenText}*/}
+                            {/*            className={styles.altButton}>Сгенерировать*/}
+                            {/*        текст автоматически</Button>*/}
+                            {/*</Form.Item>*/}
                         </>
                     )}
                 </Form>
@@ -297,7 +324,7 @@ const CasePage = () => {
                             <Carousel slides={currentCase?.images || []} selected={selectedIndex}
                                       setSelected={setSelectedIndex}/>
                         </div>
-                        <Button type="primary" onClick={next}>Сгенерировать другую</Button>
+                        <Button type="primary" onClick={handleRegenerate}>Сгенерировать другую</Button>
                     </>
                 ) : (
                     <span className={styles.notYet}>Еще не создано</span>

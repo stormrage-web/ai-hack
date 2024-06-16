@@ -86,6 +86,11 @@ const LoginPage = () => {
                     {/*Or <a href="">register now!</a>*/}
                 </Form.Item>
             </Form>
+            <div className={styles.test}>
+                <p>Тестовые пользователи:</p>
+                <p>Логин: user1 Пароль: password1</p>
+                <p>Логин: user2 Пароль: password2</p>
+            </div>
         </div>
     );
 }

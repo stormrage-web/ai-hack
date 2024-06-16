@@ -2,10 +2,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import {useCallback, useEffect} from "react";
 import {Thumb} from "../Thumb/Thumb.tsx";
 import {Generation} from "../../mocks/cases.ts";
-import clsx from "clsx";
 
 import styles from './style.module.css';
-import {Link} from "react-router-dom";
 import {DownloadOutlined} from "@ant-design/icons";
 
 type PropType = {
@@ -21,12 +19,16 @@ export const Carousel: React.FC<PropType> = ({ slides, setSelected, selected }) 
         dragFree: true
     });
 
+    useEffect(() => {
+        onThumbClick(selected);
+    }, [selected]);
+
     const onThumbClick = useCallback(
         (index: number) => {
             if (!embla || !emblaThumbs) return;
             embla.scrollTo(index);
         },
-        [embla, emblaThumbs]
+        [embla, emblaThumbs, selected]
     );
 
     const onSelect = useCallback(() => {

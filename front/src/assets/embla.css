@@ -47,8 +47,7 @@
   display: block;
   top: 50%;
   left: 50%;
-  width: auto;
-  height: inherit;
+  width: 100%;
   transform: translate(-50%, -50%);
 }
 
